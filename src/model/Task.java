@@ -44,6 +44,12 @@ public class Task implements Serializable {
 						    + delimiter + completed;
 	}
 
+	// Numero actual de atributos
+	public static int getFieldCount() {
+		return 7;
+	}
+
+
 	/* Getters & Setters */
 	public int getIdentifier() {
 		return identifier;

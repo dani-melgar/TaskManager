@@ -1,6 +1,10 @@
 package model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import model.exporter.IExporter;
+import model.repository.BinaryRepository;
 import model.repository.IRepository;
 
 public class Model {
@@ -20,6 +24,18 @@ public class Model {
 	/* Metodos */
 	public void loadData() {
 		// Implementar
+	}
+
+	/* Obtener los identificadores en memoria que ha obtenido 
+	 * la clase BinaryRepository
+	*/
+
+	public Set<Integer> getUsedIDs() {
+		if (repository instanceof BinaryRepository) {
+			return ((BinaryRepository) repository).getUsedIDs();
+		}
+
+		return new HashSet<>();
 	}
 
 	public void saveData() {

@@ -9,7 +9,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import model.Task;
 
 // Sera neccesario un metodo factory de Task?
@@ -60,60 +63,148 @@ public class CSVExporter implements IExporter {
 		Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
 	}
 
+	/**
+	 * Lee una lista de tareas de un fichero CSV existente.
+	 * <p>
+	 * Este metodo lee todas las líneas de un archivo y convierte cada línea en una instancia de
+	 * {@link Task} usando {@link #factoryTask(String)}.
+	 * Si una linea no puede convertirse en una tarea, se omite y se registra un mensaje de error.
+	 * </p>
+	 * 
+	 * @return una lista de tareas leidas desde el fichero. Si el fichero no existe, devuelve una lista vacia.
+	 * @throws IOException si ocurre un error al acceder o leer el fichero.
+	 */
+	public List<Task> readTaskFromCSV() throws IOException {
+		Path path = Paths.get(filePath);
+		if (!Files.exists(path)) {
+			return new ArrayList<>();
+		}
+
+		List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+		List<Task> taskCSV = new ArrayList<>();
+
+		for (String line : lines) {
+			try {
+				taskCSV.add(factoryTask(line));
+			} catch (ExporterException e) {
+				// Solucion de ChatGPT: Puedes registrar un mensaje de error y continuar con las siguientes lineas
+				// Es una mierda, model no puede imprimir, preguntarle esto al profesor
+				System.err.println("Error al procesar una línea del CSV: " + e.getMessage());
+			}
+		}
+
+		return taskCSV;
+	}
+
+	/**
+	 * Obtiene un conjunto con los identificadores de una lista de tareas.
+	 * <p>
+	 * Este metodo recorre la lista de tareas proporcionada y extrae los identificadores de cada tarea.
+	 * Si alguna tarea en la lista es nula, se ignora.
+	 * </p>
+	 * 
+	 * @param tasks la lista de tareas de las cuales se desea obtener los identificadores.
+	 * @return un conjunto de enteros que representan los identificadores unicos de las tareas.
+	 */
+	public Set<Integer> readTasksID(List<Task> tasks) {
+		Set<Integer> taskID = new HashSet<>();
+		for (Task task : tasks) {
+			if (task != null) {
+				taskID.add(task.getIdentifier());
+			}
+		}
+		return taskID;
+	}
 
 	@Override
 	public void exportTasks(List<Task> tasks) throws ExporterException {
 		validateTasks(tasks);
 		ensureDirectoryExists();
 
-		List <String> taskLines = new ArrayList<>();
-		for (Task task : tasks) {
-			taskLines.add(task.toDelimitedString(delimitador));
-		}
-		
-		// Ruta del fichero CSV
-		Path savePath = Paths.get(filePath);
-		File file = savePath.toFile();
+		File file = new File(filePath);
+		Set<Integer> fileTaskIDs = new HashSet<>();
+		List<Task> existingTasks = new ArrayList<>();
 
-		try {
-			if (file.exists()) {
+		if (file.exists()) {
+			try {
 				createBackup(file);
+				existingTasks = readTaskFromCSV();
+				fileTaskIDs = readTasksID(existingTasks);
+			} catch (IOException e) {
+				throw new ExporterException("Error leyendo el archivo existente para evitar duplicados", e);
 			}
+		}
 
+		// Combinar tareas existentes y nuevas
+		List<String> taskLines = new ArrayList<>();
+		for (Task existingTask : existingTasks) {
+			taskLines.add(existingTask.toDelimitedString(delimitador));
+		}
+
+		for (Task task : tasks) {
+			if (!fileTaskIDs.contains(task.getIdentifier())) {
+				taskLines.add(task.toDelimitedString(delimitador));
+			}
+		}
+
+		// Guardar todas las tareas en el archivo CSV
+		Path savePath = Paths.get(filePath);
+		try {
 			Files.write(savePath, taskLines, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new ExporterException("Error al exportar tareas al archivo CSV", e);
 		}
 	}
 
+
+
+
 	@Override
 	public Task factoryTask(String delimitedString) throws ExporterException {
-		if (delimitedString == null || delimitedString.isEmpty()) {
-			throw new ExporterException("Error: Tarea nula o vacia");
+		if (delimitedString == null || delimitedString.trim().isEmpty()) {
+			throw new ExporterException("Error: La cadena leida esta vacia o es nula");
 		}
 
 		String[] taskEntityFields = delimitedString.split(delimitador);
-		
-		// Es posible saber el numero de atributos de una clase? Para no tener el numero magico "7" ahi
-		if (taskEntityFields.length != 7) {
-			throw new ExporterException("Error: Tarea no contiene todos los atributos");
+		if (taskEntityFields.length != Task.getFieldCount()) {
+			throw new ExporterException("Error: La tarea no contiene los " + Task.getFieldCount() + " atributos esperados");
 		}
 
 		try {
 			int identifier = Integer.parseInt(taskEntityFields[0]);
+			if (identifier < 0) {
+				throw new ExporterException("Error: El identificador no puede ser negativo");
+			}
+
 			String title = taskEntityFields[1];
+			if (title == null || title.trim().isEmpty()) {
+				throw new ExporterException("Error: El titulo no puede estar vacio");
+			}
+
 			Date date = Date.valueOf(taskEntityFields[2]);
 			String content = taskEntityFields[3];
+
 			int priority = Integer.parseInt(taskEntityFields[4]);
+			if (priority < 1 || priority > 5) {
+				throw new ExporterException("Error: La prioridad debe estar entre 1 y 5");
+			}
+
 			int estimatedDuration = Integer.parseInt(taskEntityFields[5]);
+			if (estimatedDuration <= 0) {
+				throw new ExporterException("Error: La duracion estimada debe ser mayor a 0");
+			}
+
 			boolean completed = Boolean.parseBoolean(taskEntityFields[6]);
 
-			Task task = new Task(identifier, title, date, content, priority, estimatedDuration, completed);
-			return task;
-		} catch(Exception e) {
-			throw new ExporterException("Error: No se pudo crear la tarea");
+			return new Task(identifier, title, date, content, priority, estimatedDuration, completed);
+
+		} catch (NumberFormatException e) {
+			throw new ExporterException("Error: Atributo numerico erroneo en los atributos de la tarea", e);
+		} catch (IllegalArgumentException e) {
+			throw new ExporterException("Error: Formato de fecha erroneo, valido: YYYY-MM-DD", e);
 		}
 	}
+
 
 	/*
 	 * Nuevos problemas a tener en cuenta
@@ -136,7 +227,6 @@ public class CSVExporter implements IExporter {
 	 */
 	@Override
 	public List<Task> importTasks() throws ExporterException {
-		// Implementar
 		return null;
 	}
 

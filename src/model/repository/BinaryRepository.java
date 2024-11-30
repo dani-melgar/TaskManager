@@ -272,4 +272,9 @@ public class BinaryRepository implements IRepository {
 		}
 	}
 
+	// Esta funcion deberia de implementar excepciones y comprobar no sea nula antes
+	public Set<Integer> getUsedIDs() {
+		return usedIDs;
+	}
+
 }

@@ -40,30 +40,40 @@ public interface IExporter {
 	void createBackup(File file) throws IOException;
 	
 	/**
-	 * Exporta una lista de tareas a un fichero ubicado en el directorio {@code ~/Tasks}.
+	 * Exporta una lista de tareas a un fichero ubicado en la carpeta {@code ~/Tasks}.
 	 * <p>
-	 * Este metodo hace varias comprobaciones y operaciones previas para garantizar
-	 * un proceso de exportacion sin errores:
+	 * Este metodo realiza varias operaciones y verificaciones para garantizar una exportacion segura:
 	 * </p>
 	 * <ul>
-	 *   <li>Comprueba la lista de tareas utilizando {@link #validateTasks(List)}.</li>
-	 *   <li>Comprueba que el directorio de exportacion existe y, si es necesario, lo crea 
-	 *       con {@link #ensureDirectoryExists()}.</li>
-	 *   <li>Si ya existe un ficheo con la extension correspondiente en la ruta especificada,
-	 *       genera una copia de seguridad con {@link #createBackup(File)}.</li>
+	 *   <li>Comprueba la lista de tareas utilizando {@link #validateTasks(List)} para garantizar que no es nula ni contiene valores erroneos.</li>
+	 *   <li>Comprueba la existencia del directorio donde se exporta y lo crea si es necesario mediante {@link #ensureDirectoryExists()}.</li>
+	 *   <li>Si ya existe un fichero en la ruta especificada, lee las tareas existentes con {@link #readTaskFromCSV()} y 
+	 *       crea una copia de seguridad con {@link #createBackup(File)}.</li>
+	 *   <li>Combina las tareas nuevas con las existentes, evitando duplicados basados en el identificador de las tareas.</li>
 	 * </ul>
 	 * <p>
-	 * Por ultimo, escribe las tareas en el fichero, donde cada tarea ocupa una linea y sus 
-	 * atributos estan separados por el delimitador configurado.
+	 * Cuando acaba, escribe todas las tareas (existentes y nuevas) en el fichero. Cada tarea se representa en una linea 
+	 * y sus atributos están delimitados por el delimitador requerido por la extension.
 	 * </p>
 	 * 
 	 * @param tasks la lista de tareas a exportar.
-	 * @throws ExporterException si ocurre algun error durante las comprobaciones, la creacion
-	 *                           del directorio, la copia de seguridad o la escritura del fichero.
+	 * @throws ExporterException si ocurren errores durante las comprobaciones, la creacion del directorio, 
+	 *                           la copia de seguridad, la lectura del fichero o la escritura de las tareas.
 	 */
 	void exportTasks(List<Task> tasks) throws ExporterException;
 
-	// Es posible heredar un estatico?
+	/**
+	 * Crea una instancia de {@link Task} a partir de una cadena delimitada.
+	 * <p>
+	 * Este metodo convierte una cadena delimitada en un objeto de tipo {@link Task}.
+	 * Comprueba que la cadena no sea nula ni vacia y que contenga el numero correcto de campos,
+	 * separados por el delimitador correspondiente.
+	 * </p>
+	 * 
+	 * @param delimitedString la cadena de texto que representa una tarea, con los atributos separados por un delimitador.
+	 * @return una instancia de {@link Task} creada a partir de los valores de la cadena.
+	 * @throws ExporterException si la cadena es nula, esta vacia, su formato es incorrecto o no puede convertirse en una tarea.
+	 */
 	Task factoryTask(String delimitedString) throws ExporterException;
 	
 	List<Task> importTasks() throws ExporterException;
