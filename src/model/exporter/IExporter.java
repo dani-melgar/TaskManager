@@ -68,20 +68,6 @@ public interface IExporter {
 	void exportTasks(List<Task> tasks) throws ExporterException;
 
 	/**
-	 * Crea una instancia de {@link Task} a partir de una cadena delimitada.
-	 * <p>
-	 * Este metodo convierte una cadena delimitada en un objeto de tipo {@link Task}.
-	 * Comprueba que la cadena no sea nula ni vacia y que contenga el numero correcto de campos,
-	 * separados por el delimitador correspondiente.
-	 * </p>
-	 * 
-	 * @param delimitedString la cadena de texto que representa una tarea, con los atributos separados por un delimitador.
-	 * @return una instancia de {@link Task} creada a partir de los valores de la cadena.
-	 * @throws ExporterException si la cadena es nula, esta vacia, su formato es incorrecto o no puede convertirse en una tarea.
-	 */
-	Task factoryTask(String delimitedString) throws ExporterException;
-
-	/**
 	 * Importa las tareas desde un fichero y las devuelve como una lista de tareas.
 	 * <p>
 	 * Este metodo lee las tareas desde un fichero delimitado y las devuelve, filtrando las tareas basadas en sus identificadores
