@@ -14,17 +14,22 @@ import java.util.List;
 import java.util.Set;
 
 import model.Task;
+import model.TaskObserver;
 
-// Sera neccesario un metodo factory de Task?
-// De donde cojones importa
-// A donde cojones exporta
-// Vamos a suponer que importa del home? O de Documentos
 
-public class CSVExporter implements IExporter {
+public class CSVExporter implements IExporter, TaskObserver {
 	/* Atributos */
 	private final String directoryPath = System.getProperty("user.home") + "/Tasks";
 	private final String filePath = directoryPath + "/task.csv";
 	private final String delimitador = ",";
+
+	// Cache local de los IDs de las tareas
+	private Set<Integer> cachedTaskIDs = new HashSet<>();
+
+	@Override
+	public void update(Set<Integer> taskIDs) {
+		this.cachedTaskIDs = new HashSet<>(taskIDs);
+	}
 
 	@Override
 	public void ensureDirectoryExists() throws ExporterException {
@@ -122,27 +127,27 @@ public class CSVExporter implements IExporter {
 		ensureDirectoryExists();
 
 		File file = new File(filePath);
-		Set<Integer> fileTaskIDs = new HashSet<>();
 		List<Task> existingTasks = new ArrayList<>();
 
 		if (file.exists()) {
 			try {
 				createBackup(file);
 				existingTasks = readTaskFromCSV();
-				fileTaskIDs = readTasksID(existingTasks);
 			} catch (IOException e) {
-				throw new ExporterException("Error leyendo el archivo existente para evitar duplicados", e);
+				throw new ExporterException("Error leyendo el fichero existente para evitar duplicados", e);
 			}
 		}
 
-		// Combinar tareas existentes y nuevas
+		// Usar la cache de IDs para verificar duplicados
 		List<String> taskLines = new ArrayList<>();
 		for (Task existingTask : existingTasks) {
+			// Mantener tareas existentes
 			taskLines.add(existingTask.toDelimitedString(delimitador));
 		}
 
 		for (Task task : tasks) {
-			if (!fileTaskIDs.contains(task.getIdentifier())) {
+			// Comprobar elementos duplicadosd desde la cache
+			if (!cachedTaskIDs.contains(task.getIdentifier())) {
 				taskLines.add(task.toDelimitedString(delimitador));
 			}
 		}
@@ -152,12 +157,9 @@ public class CSVExporter implements IExporter {
 		try {
 			Files.write(savePath, taskLines, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			throw new ExporterException("Error al exportar tareas al archivo CSV", e);
+			throw new ExporterException("Error al exportar tareas al fichero CSV", e);
 		}
 	}
-
-
-
 
 	@Override
 	public Task factoryTask(String delimitedString) throws ExporterException {
@@ -206,30 +208,31 @@ public class CSVExporter implements IExporter {
 	}
 
 
-	/*
-	 * Nuevos problemas a tener en cuenta
-	 * 1) Directorio existe, crearlo para evitar futuras problematicas pero finalizar
-	 * 	devolviendo una lista vacia si no se puede hacer nada
-	 * 2) Fichero existe, idem paso 1
-	 * 3) Una vez lo anterior, hay dos posibles casos
-	 * 	1) No haya tareas en memoria
-	 * 	2) Hay tareas en memoria
-	 * 4) En ambos casos, se debe de poder controlar el identificador de las tareas
-	 * 	evitando duplicados con las posibles futuras tareas, o con las ya existentes
-	 * 5) Quien tenia un metodo para controlar todo esto era IRepository, quizas dicho
-	 * 	metodo o el array con las IDs de las tareas deberia de estar mas arriba, de forma
-	 * 	que mas metodos puedan acceder a el, lo cual generaria mas comprobaciones y
-	 * 	cambios al codigo actual
-	 * 6) No creo que deba de haber cambios en la exportacion ya realizada puesto que en un prinicipio
-	 * 	no se podrian tener tareas duplicadas, otro caso es la exportacion a un fichero con tareas ya existentes
-	 * 	ahi creo que si nos tocaria modificar, puesto que si ya hay un archivo con tareas, nos tocaria leer dichas
-	 * 	tareas para evitar elementos duplicados
-	 */
 	@Override
 	public List<Task> importTasks() throws ExporterException {
-		return null;
+		ensureDirectoryExists();
+
+		File file = new File(filePath);
+		List<Task> fileTasks = new ArrayList<>();
+		if (file.exists() && file.length() > 0) {
+			try {
+				createBackup(file);
+				fileTasks = readTaskFromCSV();
+			} catch (Exception e) {
+				throw new ExporterException("Error leyendo el fichero", e);
+			}
+		}
+
+		// Filtrar tareas con identificadores unicos
+		List<Task> newTasks = new ArrayList<>();
+		for (Task task : fileTasks) {
+			if (!cachedTaskIDs.contains(task.getIdentifier())) {
+				newTasks.add(task);
+			}
+		}
+
+		// Devolver solo las tareas nuevas
+		return newTasks;
 	}
-
-
 
 }

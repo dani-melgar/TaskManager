@@ -1,6 +1,8 @@
 package model.repository;
 
 import java.util.List;
+import java.util.Set;
+
 import model.Task;
 
 public interface IRepository {
@@ -67,4 +69,17 @@ public interface IRepository {
 	 * @throws RepositoryException si ocurre un error inesperado al generar la lista.
 	 */
 	List<Task> getAllTasks() throws RepositoryException;
+
+	/**
+	 * Devuelve una lista con todos los identificadores de las tareas.
+	 * <p>
+	 * Este metodo devuelve una lista con los identificadores unicos de todas
+	 * las tareas en memoria, para poder modificar la lista de tareas garantizando
+	 * tareas con identificadores unicos
+	 * </p>
+	 * 
+	 * @return una lista con todas los identificadores de las tareas. Nunca devuelve {@code null}.
+	 * @throws RepositoryException si ocurre un error inesperado.
+	 */
+	Set<Integer> getUsedIDs() throws RepositoryException;
 }

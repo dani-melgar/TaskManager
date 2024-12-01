@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.List;
 import model.Task;
 
+/**
+ * Esta interfaz define los metodos necesarios para exportar y manejar tareas.
+ * Proporciona mecanismos para asegurar que los directorios existen, la comprobacion de tareas,
+ * crear copias de seguridad, y exportar tareas a ficheros.
+ */
 public interface IExporter {
 
 	/**
@@ -75,6 +80,16 @@ public interface IExporter {
 	 * @throws ExporterException si la cadena es nula, esta vacia, su formato es incorrecto o no puede convertirse en una tarea.
 	 */
 	Task factoryTask(String delimitedString) throws ExporterException;
-	
+
+	/**
+	 * Importa las tareas desde un fichero y las devuelve como una lista de tareas.
+	 * <p>
+	 * Este metodo lee las tareas desde un fichero delimitado y las devuelve, filtrando las tareas basadas en sus identificadores
+	 * para evitar duplicados. Si el fichero no existe o está vacio, devuelve una lista vacía.
+	 * </p>
+	 * 
+	 * @return la lista de tareas importadas, filtradas por identificadores unicos.
+	 * @throws ExporterException si ocurre un error al intentar leer el archivo o procesar las tareas.
+	 */	
 	List<Task> importTasks() throws ExporterException;
 }
