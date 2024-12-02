@@ -1,11 +1,16 @@
 package view;
 
+import java.util.Scanner;
+
 public class InteractiveView extends BaseView {
 
 	@Override
 	public void init() {
+		// Scanner
+		Scanner refScanner = new Scanner(System.in);
 		clearScreen();
 		initialMessage();
+		runView(refScanner);
 	}
 
 	@Override
@@ -20,12 +25,222 @@ public class InteractiveView extends BaseView {
 
 	@Override
 	public void end() {
-		throw new UnsupportedOperationException("Unimplemented method 'end'");
 	}
 
-	// Cutre, mejorarlo una vez funcione
 	private void initialMessage() {
 		System.out.println("        BASE VIEW        ");
+	}
+
+	/*
+	 * Vista principal del programa una vez iniciado
+	*/
+	private void runView(Scanner refScanner) {
+			boolean salir = false;
+			do {
+				mainMenu();
+				int opcion = Integer.parseInt(refScanner.nextLine());
+				switch (opcion) {
+					case 1:
+						menuCRUD(refScanner);
+						break;
+					case 2:
+						importExportMenu(refScanner);
+						break;
+					case 3:
+						refScanner.close();
+						salir = true;
+						break;
+					default:
+						showErrorMessage("Opcion no valida");
+						break;
+				}
+			
+		} while (!salir);
+
+	}
+
+	/*
+	 * Menu principal
+	*/
+	private void mainMenu() {
+		System.out.println("1. Menu CRUD");
+		System.out.println("2. Importar/Exportar");
+		System.out.println("3. Salir");
+	}
+
+	/* 
+	 * Menu CRUD?
+	 */
+	private void menuCRUD(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("1. Agregar una nueva [tarea]");
+			System.out.println("2. Listar tareas");
+			System.out.println("3. Menu principal");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+				 	// Implementar
+					break;
+				case 2:
+					taskListMenu(refScanner);
+					break;
+				case 3:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+
+		} while (!salir);
+	}
+
+	/*
+	 * Opciones para mostrar todas las tareas, una vez mostradas
+	 * se podra modificar una tarea seleccionada
+	*/
+	private void taskListMenu(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("   Listar tareas");
+			System.out.println("1. Ordenadas por prioridad [Mayor a menor]");
+			System.out.println("2. Todas las tareas [Completadas/Incompletas]");
+			System.out.println("3. Volver");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+					// Implementar mostrar tareas
+					taskListMenuOptions(refScanner);
+					break;
+				case 2:
+					// Implementar mostrar tareas
+					taskListMenuOptions(refScanner);
+					break;
+				case 3:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+			
+		} while (!salir);
+	}
+
+	/*
+	 * Una vez mostradas las tareas, se podra elegir una de las tareas
+	 * y sobre ella ejecutar alguna de las siguientes opciones
+	*/
+	private void taskListMenuOptions(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("1. Marcar [Completa/Incompleta]");
+			System.out.println("2. Modificar [tarea]");
+			System.out.println("3. Eliminar [tarea]");
+			System.out.println("4. Volver");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+					// Implementar
+					break;
+				case 2:
+					// Implementar
+					break;
+				case 3:
+					// Implementar
+					break;
+				case 4:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+			
+		} while (!salir);
+	}
+	
+	/*
+	 * Se debera poder exportar/importar todas las tareas a un fichero
+	 * en formato JSON o CSV, el usuario elige el formato
+	 */
+	private void importExportMenu(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("1. Importar tareas");
+			System.out.println("2. Exportar tareas");
+			System.out.println("3. Volver");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+				 	importFormat(refScanner);
+					break;
+				case 2:
+				 	exportFormat(refScanner);
+					break;
+				case 3:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+		} while (!salir);
+	}
+
+	private void importFormat(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("1. Importar en CSV");
+			System.out.println("2. Importar en JSON");
+			System.out.println("3. Volver");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+				 	importFormat(refScanner);
+					break;
+				case 2:
+				 	exportFormat(refScanner);
+					break;
+				case 3:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+		} while (!salir);
+	}
+
+	private void exportFormat(Scanner refScanner) {
+		clearScreen();
+		boolean salir = false;
+		do {
+			System.out.println("1. Exportar en CSV");
+			System.out.println("2. Exportar en JSON");
+			System.out.println("3. Volver");
+			int opcion = Integer.parseInt(refScanner.nextLine());
+			switch (opcion) {
+				case 1:
+				 	// Implementar
+					break;
+				case 2:
+					// Implementar
+					break;
+				case 3:
+				 	salir = true;
+					break;
+				default:
+					showErrorMessage("Opcion no valida");
+					break;
+			}
+		} while (!salir);
 	}
 
 	/**
