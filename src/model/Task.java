@@ -37,6 +37,10 @@ public class Task implements Serializable {
 		this.completed = completed;
 	}
 
+	public Task(int identifier) {
+		this.identifier = identifier;
+	}
+
 	/* Metodos */
 	public String toDelimitedString(String delimiter) {
 		return Integer.toString(identifier) + delimiter + title + delimiter + date + delimiter

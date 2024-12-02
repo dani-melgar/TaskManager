@@ -1,7 +1,7 @@
 package model.exporter;
 
 public class ExporterFactory {
-	public IExporter getExporter(String type) throws ExporterException {
+	public static IExporter getExporter(String type) throws ExporterException {
 		switch (type.toLowerCase()) {
 		case "csv":
 			return new CSVExporter();

@@ -1,0 +1,20 @@
+Problemas Actualmente
+	Model:
+		Faltan Metodos que neecesita la vista
+			Principalmente devolver las tareas filtradas
+			Metodo para devolverlas como String
+		Hay excepciones que no se manejar
+		No hay orden
+		No hay init ni fin.
+
+	Controller:
+		Es un caos, el manejo de excepciones sobretodo
+	
+	View:
+		Creo que no uso los metodos creados para mostrar las cosas
+centradas por pantalla, ni nada de eso.
+		Es demasiado largo, hay como 500 lineas de codigos
+		Estan los menus mezclados, ademas de que no se sabe
+si usan las funciones correctas para imprimir
+		No hay muchos control, no se que ocurre cuando pide algo
+al controlador y esto falla provocando una excepcion.

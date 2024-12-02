@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import model.exporter.ExporterException;
+import model.exporter.ExporterFactory;
 import model.exporter.IExporter;
 import model.repository.IRepository;
 import model.repository.RepositoryException;
@@ -19,24 +20,20 @@ public class Model {
 	public Model(IRepository repository) {
 		this.repository = repository;
 	}
-
-	public void setExporter(IExporter exporter) {
-		this.exporter = exporter;
-	}
-
+	
 	/*
-	 * METODOS DE TaskObserver (Cambiarle el nombre a IObserver)
+	* METODOS DE TaskObserver (Cambiarle el nombre a IObserver)
 	 */
 	public void addObserver(TaskObserver observer) {
 		if (observer != null && !observers.contains(observer)) {
 			observers.add(observer);
 		}
 	}
-
+	
 	public void removeObserver(TaskObserver observer) {
 		observers.remove(observer);
 	}
-
+	
 	// Revisar las excepciones de getUsedIDs
 	public void notifyObservers() throws RepositoryException {
 		Set<Integer> taskIDs = repository.getUsedIDs();
@@ -44,20 +41,20 @@ public class Model {
 			observer.update(taskIDs);
 		}
 	}
-
+	
 	/*
-	 * METODOS DE IRepository
+	* METODOS DE IRepository
 	 */
 	public void addTask(Task t) throws RepositoryException {
 		repository.addTask(t);
 		notifyObservers();
 	}
-
+	
 	public void removeTask(Task t) throws RepositoryException {
 		repository.removeTask(t);
 		notifyObservers();
 	}
-
+	
 	public void modifyTask(Task t) throws RepositoryException {
 		repository.modifyTask(t);
 		notifyObservers();
@@ -66,10 +63,36 @@ public class Model {
 	public Set<Integer> getUsedIDs() throws RepositoryException {
 		return repository.getUsedIDs();
 	}
+	
+	public List<Task> getTasks() throws RepositoryException {
+		return repository.getAllTasks();
+	}
 
-	/*
-	 * METODOS DE IExporter
-	*/
+	// Seleccionar formato del exporter o importer
+	// Se podrian juntar en un solo metodo creo
+	public void setExporterOLD(IExporter exporter) {
+		this.exporter = exporter;
+	}
+
+	public void setExporter(String format) throws ExporterException {
+		this.exporter = ExporterFactory.getExporter(format);
+	}
+
+	public void setImporter(String format) throws ExporterException {
+		this.exporter = ExporterFactory.getExporter(format);
+	}
+
+	// Exportar
+	// Comprobar mas afondo que pasa aqui
+	public void exportTasks() throws ExporterException, RepositoryException {
+		this.exporter.exportTasks(repository.getAllTasks());
+	}
+
+	// Pasamos la lista de tareas por comodidad
+	public List<Task> getImportedTasks() throws ExporterException {
+		return exporter.importTasks();
+	}
+
 	public void mergeTasks(List<Task> importedTasks, boolean applyMerge) throws RepositoryException {
 		if (applyMerge) {
 			for (Task importedTask : importedTasks) {
