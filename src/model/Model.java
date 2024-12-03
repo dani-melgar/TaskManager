@@ -130,12 +130,12 @@ public class Model {
 		}
 	}
 
-	public void loadData() {
-		// Implementar
+	public void loadData() throws RepositoryException{
+		repository.loadTasks();
 	}
 
-	public void saveData() {
-		// Implementar
+	public void saveData() throws RepositoryException {
+		repository.saveTasks();
 	}
 
 	/* Getters & Setters */

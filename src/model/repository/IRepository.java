@@ -6,6 +6,39 @@ import java.util.Set;
 import model.Task;
 
 public interface IRepository {
+	/**
+	 * Carga una lista de tareas desde un fichero binario ubicado en el home del usuario.
+	 * <p>
+	 * Este metodo comprueba que el archivo exista antes de intentar cargar las tareas.
+	 * Si el fichero no contiene una lista valida de objetos "Task", se lanza una excepcion.
+	 * Tambien realiza comprobaciones para asegurarse de que todos los elementos
+	 * deserializados sean objetos de la clase "Task".
+	 * </p>
+	 *
+	 * <p>
+	 * Mientras se cargan las tareas, los identificadores de las tareas deserializadas
+	 * se añaden al conjunto de identificadores unicos utilizados por el repositorio
+	 * para garantizar la unicidad de los IDs en el futuro.
+	 * </p>
+	 * @throws RepositoryException en caso de algun problema al leer o deserializar el fichero,
+	 *                             o si el archivo contiene datos no valido.
+	 */
+	public void loadTasks() throws RepositoryException;
+	
+	/**
+	 * Guarda la lista de tareas en un fichero binario en el home del usuario.
+	 * <p>
+	 * Este metodo comprueba que la lista de tareas este cargada y no contenga
+	 * elementos nulos antes de intentar guardarla. Tambien comprueba si el fichero
+	 * existe y permite la escritura antes de intentarlo.
+	 * Se utiliza una copia inmutable de la lista para evitar modificaciones a la lista
+	 * original mientras se escribe.
+	 * </p>
+	 * 
+	 * @throws RepositoryException en caso de algun problema al guardar las tareas,
+	 *                             como un fichero inexistente o problemas de escritura.
+	 */
+	public void saveTasks() throws RepositoryException;
 	
 	/**
 	 * Añade una nueva tarea.

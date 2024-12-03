@@ -37,9 +37,7 @@ public class FinalView extends BaseView {
 		clearScreen();
 		showLoading("Iniciando el programa");
 		Scanner refScanner = new Scanner(System.in);
-
 		mainMenu(refScanner);
-
 		refScanner.close();
 	}
 
@@ -55,6 +53,7 @@ public class FinalView extends BaseView {
 
 	@Override
 	public void end() {
+		clearScreen();
 	}
 
 	/*
@@ -141,11 +140,12 @@ public class FinalView extends BaseView {
 		controller.addTask(t);
 	}
 
+	// Revisar enunciado -> Filtrar Tareas por Completadas / Sin Completar
 	private void listTasksMenu(Scanner refScanner) {
 		String title = "Listar Tareas";
 		String[] options = {
 			"Ordenadas por prioridad [Ascendente -> Descendente]",
-			"Todas las tareas",
+			"Todas las tareas [Sin Completar]",
 			"Volver"
 		};
 		boolean salir = false;
@@ -184,6 +184,7 @@ public class FinalView extends BaseView {
 				break;
 		}
 		showTasks(tasks);
+		// Quizas agregar un pequenio wait o pausa entre tarea y tarea
 
 		String title = "Modificar Detalles de una Tarea";
 		String[] options = {
@@ -191,17 +192,129 @@ public class FinalView extends BaseView {
 			"Modificar Informacion Tarea",
 			"Eliminar Tarea",
 		};
+		
+		boolean salir = false;
+		do {
+			printMenu(title, options);
+			printCenteredText("Seleccione una opcion: ");
+			int option = validOptionInteger(refScanner, 1, options.length);
+			switch (option) {
+				case 1:
+					modifyTaskStatus(tasks, refScanner);
+					break;
+				case 2:
+					modifyTaskInfo(tasks, refScanner);
+					break;
+				case 3:
+					salir = true;
+					break;
+			}
+			
+		} while (!salir);
 	}
 
-	/*
-	 * Vamos a trabajar en estas opciones
-	 * Para ello, primero deberiamos de obtener las tareas, ya sean como string
-	 * o como cojones sea
-	 */
+	private void modifyTaskStatus(List<Task> tasks, Scanner refScanner) {
+		showTasks(tasks);
+		boolean salir = false;
+		do {
+			try {
+				printCenteredText("Seleccione el identificador de una tarea: ");
+				int idUserTask = Integer.parseInt(refScanner.nextLine().trim());
+
+				Task selectedTask = null;
+
+				// Buscar la tarea con el ID proporcionado
+				for (Task task : tasks) {
+					if (task.getIdentifier() == idUserTask) {
+						selectedTask = task;
+						break;
+					}
+				}
+
+				if (selectedTask != null) {
+					// Cambiar el estado de la tarea
+					boolean newStatus = !selectedTask.isCompleted();
+					// Necesita tantos parametros por las comprobaciones del BaseView
+					Task updatedTask = new Task(
+						selectedTask.getIdentifier(),
+						selectedTask.getTitle(),
+						selectedTask.getDate(),
+						selectedTask.getContent(),
+						selectedTask.getPriority(),
+						selectedTask.getEstimatedDuration(),
+						newStatus
+					);
+
+					controller.editTask(updatedTask);
+					showMessage("El estado '" + selectedTask.getTitle() + "' ha cambiado a: " + (newStatus ? "Completada" : "Pendiente"));
+					salir = true;
+				} else {
+					showErrorMessage("No se encontro una tarea con el identificador proporcionado.");
+				}
+			} catch (NumberFormatException e) {
+				showErrorMessage("Por favor, introduzca un número.");
+			}
+		} while (!salir);
+	}
+
+	private void modifyTaskInfo(List<Task> tasks, Scanner refScanner) {
+		showTasks(tasks);
+		boolean salir = false;
+		do {
+			try {
+				printCenteredText("Seleccione el identificador de una tarea: ");
+				int idUserTask = Integer.parseInt(refScanner.nextLine().trim());
+
+				Task selectedTask = null;
+
+				// Buscar la tarea con el ID proporcionado
+				for (Task task : tasks) {
+					if (task.getIdentifier() == idUserTask) {
+						selectedTask = task;
+						break;
+					}
+				}
+
+				if (selectedTask != null) {
+					printCenteredText("Introduzca el nuevo titulo: ");
+					String title = refScanner.nextLine();
+					
+					printCenteredText("Introduzca nueva fecha: ");
+					Date date = null;
+
+					printCenteredText("Introduzca el nuevo contenido: ");
+					String content = refScanner.nextLine();
+
+					printCenteredText("Introduzca la prioridad de la tarea: ");
+					int priority = validOptionInteger( refScanner, 1, 5);
+
+					printCenteredText("Duracion estimada de la nueva tarea: ");
+					int estimatedDuration = validOptionInteger(refScanner, 0, 1000000);
+
+					boolean completada = confirmAction("Tarea completada?: ", refScanner);
+
+					Task t = new Task(title, date, content, priority, estimatedDuration, completada);
+					controller.editTask(t);
+
+					showMessage("Tarea modificada");
+					salir = true;
+				} else {
+					showErrorMessage("No se encontro una tarea con el identificador proporcionado.");
+				}
+			} catch (NumberFormatException e) {
+				showErrorMessage("Por favor, introduzca un numero.");
+			}
+		} while (!salir);
+	}
+
+
+
+	@SuppressWarnings("unused")
 	private void listTasksShortedByPriority(Scanner refScanner) {
 		showTasks(controller.getTasksByPriority());
 	}
 
+	@SuppressWarnings("unused")
 	private void listAllTasks(Scanner refScanner) {
 		showTasks(controller.getAllTasks());
 

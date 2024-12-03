@@ -128,12 +128,21 @@ public class Controller {
 	 * resaltado del Errorlens y VSCode
 	 */
 	public void start() {
-		model.loadData();
-		view.init();
+		try {
+			model.loadData();
+		} catch (RepositoryException e) {
+			view.init();
+			view.showErrorMessage(e.getMessage());
+		}
 	}
 
 	public void end() {
-		view.end();
+		try {
+			model.saveData();
+		} catch (RepositoryException e) {
+			view.showErrorMessage(e.getMessage());
+			view.end();
+		}
 	}
 
 }
