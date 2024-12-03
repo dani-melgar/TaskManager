@@ -85,6 +85,19 @@ public interface IRepository {
 	List<Task> getTasksShortedByPriority() throws RepositoryException;
 
 	/**
+	 * Devuelve una lista de tareas que no se han completado aun.
+	 * 
+	 * <p>
+	 * La lista original de tareas no se modifica. En su lugar, este metodo genera una copia,
+	 * la ordena y la devuelve.
+	 * <p>
+	 * 
+	 * @return una lista de tareas filtradas por aquellas que han sido completadas.
+	 * @throws RepositoryException si ocurre un error al obtener o procesar las tareas.
+	 */
+	List<Task> getTasksShortedByCompletion() throws RepositoryException;
+
+	/**
 	 * Devuelve una lista con todos los identificadores de las tareas.
 	 * <p>
 	 * Este metodo devuelve una lista con los identificadores unicos de todas

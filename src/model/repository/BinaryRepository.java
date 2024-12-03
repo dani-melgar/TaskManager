@@ -283,6 +283,18 @@ public class BinaryRepository implements IRepository {
 			throw new RepositoryException("Error al obtener la lista de tareas ordenada por prioridad", e);
 		}
 	}
+	
+	@Override
+	public List<Task> getTasksShortedByCompletion() throws RepositoryException {
+		try {
+			List<Task> sortedTasks = getAllTasks();
+			// Ordenamos las tareas por su atributo "priority" (de mayor a menor)
+			sortedTasks.sort((task1, task2) -> Boolean.compare(!task2.isCompleted(), !task1.isCompleted()));
+			return sortedTasks;
+		} catch (Exception e) {
+			throw new RepositoryException("Error al obtener la lista de tareas completadas", e);
+		}
+	}
 
 	// Esta funcion deberia de implementar excepciones y comprobar no sea nula antes
 	@Override
