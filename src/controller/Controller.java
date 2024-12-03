@@ -106,13 +106,21 @@ public class Controller {
 	}
 
 	public List<Task> getAllTasks() {
-		List<Task> tasks = new ArrayList<>();
 		try {
-			tasks = model.getTasks();
+			return model.getAllTasks();
 		} catch (RepositoryException e) {
-			view.showErrorMessage(e.getMessage());
+			view.showErrorMessage("Error al obtener las tareas: " + e.getMessage());
+			return new ArrayList<>();
 		}
-		return tasks;
+	}
+
+	public List<Task> getSortedTasks() {
+		try {
+			return model.getTaskShortedByPriority();
+		} catch (RepositoryException e) {
+			view.showErrorMessage("No se pudieron obtener las tareas ordenadas: " + e.getMessage());
+			return new ArrayList<>();
+	}
 	}
 
 	/*

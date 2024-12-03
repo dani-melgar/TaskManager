@@ -71,6 +71,20 @@ public interface IRepository {
 	List<Task> getAllTasks() throws RepositoryException;
 
 	/**
+	 * Devuelve una lista de tareas ordenadas por prioridad en orden descendente.
+	 * 
+	 * <p>
+	 * La lista original de tareas no se modifica. En su lugar, este metodo genera una copia,
+	 * la ordena y la devuelve. Las tareas con mayor prioridad (valor num mas alto)
+	 * apareceran primero en la lista.
+	 * <p>
+	 * 
+	 * @return una lista de tareas ordenadas por prioridad en orden descendente.
+	 * @throws RepositoryException si ocurre un error al obtener o procesar las tareas.
+	 */
+	List<Task> getTasksShortedByPriority() throws RepositoryException;
+
+	/**
 	 * Devuelve una lista con todos los identificadores de las tareas.
 	 * <p>
 	 * Este metodo devuelve una lista con los identificadores unicos de todas

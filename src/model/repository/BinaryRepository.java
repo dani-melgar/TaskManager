@@ -272,6 +272,18 @@ public class BinaryRepository implements IRepository {
 		}
 	}
 
+	@Override
+	public List<Task> getTasksShortedByPriority() throws RepositoryException {
+		try {
+			List<Task> sortedTasks = getAllTasks();
+			// Ordenamos las tareas por su atributo "priority" (de mayor a menor)
+			sortedTasks.sort((task1, task2) -> Integer.compare(task2.getPriority(), task1.getPriority()));
+			return sortedTasks;
+		} catch (Exception e) {
+			throw new RepositoryException("Error al obtener la lista de tareas ordenada por prioridad", e);
+		}
+	}
+
 	// Esta funcion deberia de implementar excepciones y comprobar no sea nula antes
 	@Override
 	public Set<Integer> getUsedIDs() throws RepositoryException {

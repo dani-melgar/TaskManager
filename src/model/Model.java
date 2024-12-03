@@ -64,8 +64,12 @@ public class Model {
 		return repository.getUsedIDs();
 	}
 	
-	public List<Task> getTasks() throws RepositoryException {
+	public List<Task> getAllTasks() throws RepositoryException {
 		return repository.getAllTasks();
+	}
+
+	public List<Task> getTaskShortedByPriority() throws RepositoryException {
+		return repository.getTasksShortedByPriority();
 	}
 
 	// Seleccionar formato del exporter o importer

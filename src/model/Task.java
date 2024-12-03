@@ -48,6 +48,11 @@ public class Task implements Serializable {
 						    + delimiter + completed;
 	}
 
+	@Override
+	public String toString() {
+		return Integer.toString(identifier) + title + date + content + Integer.toString(priority) + Integer.toString(estimatedDuration) + completed;
+	}
+
 	// Numero actual de atributos
 	public static int getFieldCount() {
 		return 7;
