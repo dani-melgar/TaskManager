@@ -8,12 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import model.Task;
 import model.TaskObserver;
@@ -106,7 +108,8 @@ public class JSONExporter implements IExporter, TaskObserver {
 		}
 
 		// Usar Gson para convertir la lista de tareas a JSON
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
+
 		String json = gson.toJson(allTasks);
 
 		// Guardar el JSON en el archivo
@@ -131,7 +134,7 @@ public class JSONExporter implements IExporter, TaskObserver {
 			String json = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
 
 			// Pasar el JSON a una lista de objetos Task
-			Gson gson = new Gson();
+			Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
 			Task[] taskArray = gson.fromJson(json, Task[].class);
 			List<Task> tasks = List.of(taskArray);
 

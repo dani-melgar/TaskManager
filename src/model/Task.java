@@ -1,8 +1,8 @@
 package model;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Task implements Serializable {
 	// Cambiar la visibilidad luego a private
@@ -11,14 +11,14 @@ public class Task implements Serializable {
 	/* Atributos */
 	private int identifier;
 	private String title;
-	private Date date;
+	private LocalDate date;
 	private String content;
 	private int priority; // Entero entre 1 y 5
 	private int estimatedDuration;
 	private boolean completed;
 
 	/* Constructor */
-	public Task(int identifier, String title, Date date, String content, int priority, int estimatedDuration, boolean completed) {
+	public Task(int identifier, String title, LocalDate date, String content, int priority, int estimatedDuration, boolean completed) {
 		this.identifier = identifier;
 		this.title = title;
 		this.date = date;
@@ -29,7 +29,7 @@ public class Task implements Serializable {
 	}
 
 	/* Constructor SIN Identificador */
-	public Task(String title, Date date, String content, int priority, int estimatedDuration, boolean completed) {
+	public Task(String title, LocalDate date, String content, int priority, int estimatedDuration, boolean completed) {
 		this.title = title;
 		this.date = date;
 		this.content = content;
@@ -44,13 +44,30 @@ public class Task implements Serializable {
 
 	/* Metodos */
 	public String toDelimitedString(String delimiter) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		return identifier + delimiter + title + delimiter + dateFormat.format(date) + delimiter + content + delimiter + priority + delimiter + estimatedDuration + delimiter + completed;
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return escapeField(String.valueOf(identifier)) + delimiter
+			+ escapeField(title) + delimiter
+			+ escapeField(date.format(dateFormatter)) + delimiter
+			+ escapeField(content) + delimiter
+			+ escapeField(String.valueOf(priority)) + delimiter
+			+ escapeField(String.valueOf(estimatedDuration)) + delimiter
+		+ escapeField(String.valueOf(completed));
+	}
+
+
+	private String escapeField(String field) {
+		if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+			// Escapar comillas dobles
+			field = field.replace("\"", "\"\"");
+			// Envolver el campo con comillas dobles
+			return "\"" + field + "\"";
+		}
+		return field;
 	}
 
 	@Override
 	public String toString() {
-		return Integer.toString(identifier) + " " + title + " " + date + " " + content + " " + Integer.toString(priority) + " " + Integer.toString(estimatedDuration) + " " + completed;
+		return identifier + " " + title + " "  + date + " "  + content + " "  + priority + " "  + estimatedDuration + " " + completed;
 	}
 
 	// Numero actual de atributos
@@ -76,11 +93,11 @@ public class Task implements Serializable {
 		this.title = title;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

@@ -2,11 +2,11 @@ package view;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import controller.Controller;
@@ -124,7 +124,7 @@ public class InteractiveView extends BaseView {
 		String title = refScanner.nextLine();
 
 		System.out.printf("Fecha: ");
-		Date date = readDate(refScanner);
+		LocalDate date = readDate(refScanner);
 
 		System.out.printf("Contenido: ");
 		String content = refScanner.nextLine();
@@ -142,20 +142,21 @@ public class InteractiveView extends BaseView {
 		controller.addTask(t);
 	}
 	
-	public Date readDate(Scanner scanner) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		dateFormat.setLenient(false); // Validar formato estrictamente
+
+	public LocalDate readDate(Scanner scanner) {
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 		while (true) {
 			System.out.printf("Ingrese una fecha (YYYY-MM-DD): ");
 			String input = scanner.nextLine().trim();
 			try {
-				return dateFormat.parse(input);
-			} catch (ParseException e) {
+				return LocalDate.parse(input, dateFormatter);
+			} catch (DateTimeParseException e) {
 				System.out.println("Formato de fecha inválido. Intente nuevamente.");
 			}
 		}
 	}
+
 
 
 	// Revisar enunciado -> Filtrar Tareas por Completadas / Sin Completar
@@ -302,7 +303,7 @@ public class InteractiveView extends BaseView {
 					String title = refScanner.nextLine();
 					
 					System.out.printf("Fecha: ");
-					Date date = readDate(refScanner);
+					LocalDate date = readDate(refScanner);
 
 					System.out.printf("Introduzca el nuevo contenido: ");
 					String content = refScanner.nextLine();
@@ -436,6 +437,8 @@ public class InteractiveView extends BaseView {
 		List<Task> importedTasks = controller.importTasks(format);
 		printCenteredText("TAREAS IMPORTADAS");
 		displayTasks(importedTasks);
+		showMessage("Tarea modificada");
+		System.out.printf("Presione una tecla para continuar...");
 		controller.mergeImportedTasks(importedTasks, true);
 	}
 
@@ -493,7 +496,7 @@ public class InteractiveView extends BaseView {
 			String[] row = {
 				String.valueOf(task.getIdentifier()),
 				task.getTitle(),
-				formatDate(task.getDate()),
+				task.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
 				task.getContent(),
 				String.valueOf(task.getPriority()),
 				String.valueOf(task.getEstimatedDuration()),
@@ -526,12 +529,6 @@ public class InteractiveView extends BaseView {
 
 		return columnWidths;
 	}
-
-	private String formatDate(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD");
-		return formatter.format(date);
-	}
-
 
 	private void printRow(String[] row, int[] columnWidths, boolean isHeader) {
 		for (int i = 0; i < row.length; i++) {

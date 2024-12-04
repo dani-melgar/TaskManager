@@ -7,9 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -196,10 +196,8 @@ public class CSVExporter implements IExporter, TaskObserver {
 				throw new ExporterException("Error: El titulo no puede estar vacio");
 			}
 
-			// Formato de la fecha, sigue dando por culo
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			dateFormat.setLenient(false);
-			Date date = dateFormat.parse(taskEntityFields[2]);
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate date = LocalDate.parse(taskEntityFields[2], dateFormatter);
 
 			String content = taskEntityFields[3];
 
@@ -219,7 +217,7 @@ public class CSVExporter implements IExporter, TaskObserver {
 
 		} catch (NumberFormatException e) {
 			throw new ExporterException("Error: Atributo numerico erroneo en los atributos de la tarea", e);
-		} catch (ParseException e) {
+		} catch (DateTimeParseException e) {
 			throw new ExporterException("Error: Formato de fecha erroneo, valido: YYYY-MM-DD", e);
 		}
 	}
