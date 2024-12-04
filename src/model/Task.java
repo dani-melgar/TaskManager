@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Task implements Serializable {
@@ -43,14 +44,13 @@ public class Task implements Serializable {
 
 	/* Metodos */
 	public String toDelimitedString(String delimiter) {
-		return Integer.toString(identifier) + delimiter + title + delimiter + date + delimiter
-						    + content + delimiter + Integer.toString(priority) + delimiter + Integer.toString(estimatedDuration)
-						    + delimiter + completed;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		return identifier + delimiter + title + delimiter + dateFormat.format(date) + delimiter + content + delimiter + priority + delimiter + estimatedDuration + delimiter + completed;
 	}
 
 	@Override
 	public String toString() {
-		return Integer.toString(identifier) + title + date + content + Integer.toString(priority) + Integer.toString(estimatedDuration) + completed;
+		return Integer.toString(identifier) + " " + title + " " + date + " " + content + " " + Integer.toString(priority) + " " + Integer.toString(estimatedDuration) + " " + completed;
 	}
 
 	// Numero actual de atributos

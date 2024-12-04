@@ -1,6 +1,5 @@
 package model.exporter;
 
-import com.google.gson.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.google.gson.Gson;
 
 import model.Task;
 import model.TaskObserver;
