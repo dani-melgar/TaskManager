@@ -53,6 +53,10 @@ public class Model {
 		repository.saveTasks();
 	}
 
+	public void createTask(Task t) throws RepositoryException {
+		repository.createTask(t);
+		notifyObservers();
+	}
 	public void addTask(Task t) throws RepositoryException {
 		repository.addTask(t);
 		notifyObservers();
@@ -76,8 +80,12 @@ public class Model {
 		return repository.getAllTasks();
 	}
 
-	public List<Task> getTaskShortedByPriority() throws RepositoryException {
-		return repository.getTasksShortedByPriority();
+	public List<Task> getTaskSortedByPriority() throws RepositoryException {
+		return repository.getTasksSortedByPriority();
+	}
+
+	public List<Task> getTaskSortedByCompletion() throws RepositoryException {
+		return repository.getTasksSortedByPriority();
 	}
 
 	/* --------------------------------------------------------------------------- */

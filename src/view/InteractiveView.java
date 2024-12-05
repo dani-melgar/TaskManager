@@ -139,7 +139,7 @@ public class InteractiveView extends BaseView {
 		boolean completada = confirmAction("Tarea completada?: ", refScanner);
 
 		Task t = new Task(title, date, content, priority, estimatedDuration, completada);
-		controller.addTask(t);
+		controller.createTask(t);
 	}
 	
 
@@ -205,14 +205,13 @@ public class InteractiveView extends BaseView {
 			clearScreen();
 			switch (displayOption) {
 			case 1:
-				tasks = controller.getAllTasks();
+				tasks = controller.getTasksSortedByCompletion();
 				break;
 			case 2:
-				tasks = controller.getTasksShortedByPriority();
+				tasks = controller.getTasksSortedByPriority();
 				break;
 			}
 
-			displayTasks(tasks);
 			System.out.println("-".repeat(getTerminalWidth()));
 			printMenu(title, options);
 			int option = askValidatedCenteredText("Introduzca una opcion:", refScanner, 1, options.length);
@@ -234,9 +233,14 @@ public class InteractiveView extends BaseView {
 	}
 
 	private void modifyTaskStatus(List<Task> tasks, Scanner refScanner) {
-		displayTasks(tasks);
 		boolean salir = false;
 		do {
+			clearScreen();
+			printCenteredText("TAREAS");
+			System.out.println("-".repeat(getTerminalWidth()));
+			displayTasks(tasks);
+			System.out.println("-".repeat(getTerminalWidth()));
+			System.out.println();
 			try {
 				System.out.printf("Seleccione el identificador de una tarea: ");
 				int idUserTask = Integer.parseInt(refScanner.nextLine().trim());
@@ -281,9 +285,14 @@ public class InteractiveView extends BaseView {
 	}
 
 	private void modifyTaskInfo(List<Task> tasks, Scanner refScanner) {
-		displayTasks(tasks);
 		boolean salir = false;
 		do {
+			clearScreen();
+			System.out.println("-".repeat(getTerminalWidth()));
+			printCenteredText("TAREAS");
+			displayTasks(tasks);
+			System.out.println("-".repeat(getTerminalWidth()));
+			System.out.println();
 			try {
 				System.out.printf("Seleccione el identificador de una tarea: ");
 				int idUserTask = Integer.parseInt(refScanner.nextLine().trim());
@@ -333,9 +342,14 @@ public class InteractiveView extends BaseView {
 	}
 
 	private void modifyTaskExistance(List<Task> tasks, Scanner refScanner) {
-		displayTasks(tasks);
 		boolean salir = false;
 		do {
+			clearScreen();
+			printCenteredText("TAREAS");
+			System.out.println("-".repeat(getTerminalWidth()));
+			displayTasks(tasks);
+			System.out.println("-".repeat(getTerminalWidth()));
+			System.out.println();
 			try {
 				System.out.printf("Seleccione el identificador de una tarea: ");
 				int idUserTask = Integer.parseInt(refScanner.nextLine().trim());
@@ -371,7 +385,7 @@ public class InteractiveView extends BaseView {
 
 	@SuppressWarnings("unused")
 	private void listTasksShortedByPriority(Scanner refScanner) {
-		displayTasks(controller.getTasksShortedByPriority());
+		displayTasks(controller.getTasksSortedByPriority());
 	}
 
 	@SuppressWarnings("unused")
@@ -630,10 +644,19 @@ public class InteractiveView extends BaseView {
 	}
 
 
+	// FIX THIS SHIT
 	private boolean confirmAction(String message, Scanner refScanner) {
-		printCenteredText(message + " (s/n:)");
+		int width = getTerminalWidth();
 		while (true) {
+			if (message.length() >= width) {
+				System.out.print(message + " ");
+			} else {
+				int padding = (width - message.length())/2;
+				System.out.print(" ".repeat(padding) + message + " ");
+			}
+
 			String input = refScanner.nextLine().trim().toLowerCase();
+
 			if (input.equals("s")) {
 				return true;
 			}
@@ -641,7 +664,12 @@ public class InteractiveView extends BaseView {
 				return false;
 			}
 			String errorString = "Introduzca " + GREEN + "s" + RESET + " para " + GREEN + "si" + RESET + " o " + RED + "n" + RESET + " para " + RED + "no." + RESET;
-			printCenteredText(errorString);
+			if (message.length() >= width) {
+				System.out.println(errorString);
+			} else {
+				int padding = (width - message.length())/2;
+				System.out.print(" ".repeat(padding) + errorString + " ");
+			}
 		}
 	}
 

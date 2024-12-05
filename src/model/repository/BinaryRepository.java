@@ -61,6 +61,7 @@ public class BinaryRepository implements IRepository {
 							throw new RepositoryException("Error: El archivo contiene elementos que no son de tipo Task");
 						}
 					}
+					
 				} else {
 					throw new RepositoryException("Error: El archivo no contiene una lista de tareas");
 				}
@@ -133,6 +134,40 @@ public class BinaryRepository implements IRepository {
 			throw new RepositoryException("Error: La tarea es nula");
 		}
 
+		// Comprobar titulo y contenido no nulos o vacios
+		if (t.getTitle() == null || t.getTitle().isEmpty()) {
+			throw new RepositoryException("Error: El titulo de la tarea es obligatorio");
+		}
+
+		if (t.getContent() == null || t.getContent().isEmpty()) {
+			throw new RepositoryException("Error: El contenido de la tarea es obligatorio");
+		}
+		
+		// Comprobaciones futuras demas atributos (Me canse xd)
+
+		if (tasks != null && !tasks.isEmpty()) {
+			for (Task task : tasks) {
+				if (task.getIdentifier() == t.getIdentifier()) {
+					throw new RepositoryException("Error: Tarea con identificador: " + t.getIdentifier() + " ya existe");
+				}
+			}
+		}
+
+		try {
+			tasks.add(t);
+		} catch (Exception e) {
+			throw new RepositoryException("Error al añadir la tarea: " + e.getMessage(), e);
+		}
+	}
+
+
+	@Override
+	public void createTask(Task t) throws RepositoryException {
+		// Comprobar si la tarea esta vacia
+		if (t == null) {
+			throw new RepositoryException("Error: La tarea es nula");
+		}
+
 		// Generar un identificador unico
 		int uniqueID = generateUniqueID();
 		t.setIdentifier(uniqueID);
@@ -146,9 +181,6 @@ public class BinaryRepository implements IRepository {
 			throw new RepositoryException("Error: El contenido de la tarea es obligatorio");
 		}
 		
-		// Comprobaciones futuras demas atributos (Me canse xd)
-
-		// DUDA: Es necesario comprobar si el identificador es unico ,aunque ya lo estamos generando de manera unica?
 		if (tasks != null && !tasks.isEmpty()) {
 			for (Task task : tasks) {
 				if (task.getIdentifier() == t.getIdentifier()) {
@@ -158,7 +190,7 @@ public class BinaryRepository implements IRepository {
 		}
 
 		try {
-			tasks.add(t);
+			addTask(t);
 		} catch (Exception e) {
 			throw new RepositoryException("Error al añadir la tarea: " + e.getMessage(), e);
 		}
@@ -244,7 +276,7 @@ public class BinaryRepository implements IRepository {
 	}
 
 	@Override
-	public List<Task> getTasksShortedByPriority() throws RepositoryException {
+	public List<Task> getTasksSortedByPriority() throws RepositoryException {
 		try {
 			List<Task> sortedTasks = getAllTasks();
 			// Ordenamos las tareas por su atributo "priority" (de mayor a menor)
@@ -256,7 +288,7 @@ public class BinaryRepository implements IRepository {
 	}
 	
 	@Override
-	public List<Task> getTasksShortedByCompletion() throws RepositoryException {
+	public List<Task> getTasksSortedByCompletion() throws RepositoryException {
 		try {
 			List<Task> sortedTasks = getAllTasks();
 			// Ordenamos las tareas por su atributo "priority" (de mayor a menor)

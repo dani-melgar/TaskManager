@@ -101,8 +101,21 @@ public class JSONExporter implements IExporter, TaskObserver {
 		// Usar la cache de IDs para evitar duplicados
 		Set<Integer> existingTaskIDs = readTasksID(existingTasks);
 		List<Task> allTasks = new ArrayList<>(existingTasks);
+
 		for (Task task : tasks) {
-			if (!existingTaskIDs.contains(task.getIdentifier())) {
+			boolean taskExists = false;
+				
+			for (int i = 0; i < existingTaskIDs.size(); i++) {
+				Task existingTask = existingTasks.get(i);
+				if (existingTask.getIdentifier() == task.getIdentifier()) {
+					taskExists = true;
+					if (!existingTask.getTitle().equals(task.getTitle()) || !existingTask.getContent().equals(task.getContent())) {
+						allTasks.set(i, task);
+					}
+					break;
+				}
+			}
+			if (!taskExists) {
 				allTasks.add(task);
 			}
 		}

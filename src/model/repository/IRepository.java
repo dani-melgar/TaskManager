@@ -41,7 +41,7 @@ public interface IRepository {
 	public void saveTasks() throws RepositoryException;
 	
 	/**
-	 * Añade una nueva tarea.
+	 * Añade una tarea.
 	 * 
 	 * <p>
 	 * Este metodo genera un identificador unico para la tarea, comprueba que los
@@ -55,6 +55,22 @@ public interface IRepository {
 	 *                              o si ocurre un error al añadirla.
 	 */
 	void addTask(Task t) throws RepositoryException;
+
+	/**
+	 * Crea una nueva tarea.
+	 * 
+	 * <p>
+	 * Este metodo genera un identificador unico para la tarea, comprueba que los
+	 * campos obligatorios no esten vacios y comprueba que no existan duplicados
+	 * en el repositorio antes de añadirla. Si la tarea es nula o no cumple con
+	 * los requisitos, se lanza una excepcion.
+	 * </p>
+	 * 
+	 * @param t : la tarea que se va a añadir.
+	 * @throws RepositoryException Si la tarea es nula, tiene campos obligatorios vacíos,
+	 *                              o si ocurre un error al añadirla.
+	 */
+	void createTask(Task t) throws RepositoryException;
 	
 	/**
 	 * Elimina una tarea del repositorio por su identificador.
@@ -115,7 +131,7 @@ public interface IRepository {
 	 * @return una lista de tareas ordenadas por prioridad en orden descendente.
 	 * @throws RepositoryException si ocurre un error al obtener o procesar las tareas.
 	 */
-	List<Task> getTasksShortedByPriority() throws RepositoryException;
+	List<Task> getTasksSortedByPriority() throws RepositoryException;
 
 	/**
 	 * Devuelve una lista de tareas que no se han completado aun.
@@ -128,7 +144,7 @@ public interface IRepository {
 	 * @return una lista de tareas filtradas por aquellas que han sido completadas.
 	 * @throws RepositoryException si ocurre un error al obtener o procesar las tareas.
 	 */
-	List<Task> getTasksShortedByCompletion() throws RepositoryException;
+	List<Task> getTasksSortedByCompletion() throws RepositoryException;
 
 	/**
 	 * Devuelve una lista con todos los identificadores de las tareas.

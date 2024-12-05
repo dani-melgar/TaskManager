@@ -43,7 +43,7 @@ public class Task implements Serializable {
 	}
 
 	/* Metodos */
-	public String toDelimitedString(String delimiter) {
+	public String toDelimitedStringOLD(String delimiter) {
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return escapeField(String.valueOf(identifier)) + delimiter
 			+ escapeField(title) + delimiter
@@ -54,6 +54,10 @@ public class Task implements Serializable {
 		+ escapeField(String.valueOf(completed));
 	}
 
+	public String toDelimitedString(String delimiter) {
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return identifier + delimiter + title + delimiter + dateFormat.format(date) + delimiter + content + delimiter + priority + delimiter + estimatedDuration + delimiter + completed;
+	}
 
 	private String escapeField(String field) {
 		if (field.contains(",") || field.contains("\"") || field.contains("\n")) {

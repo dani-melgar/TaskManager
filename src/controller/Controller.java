@@ -52,6 +52,14 @@ public class Controller {
 		}
 	}
 
+	public void createTask(Task t) {
+		try {
+			model.createTask(t);
+		} catch (RepositoryException e) {
+			view.showErrorMessage(e.getMessage());
+		}
+	}
+
 	public void editTask(Task t) {
 		try {
 			model.modifyTask(t);
@@ -77,15 +85,23 @@ public class Controller {
 		}
 	}
 
-	public List<Task> getTasksShortedByPriority() {
+	public List<Task> getTasksSortedByPriority() {
 		try {
-			return model.getTaskShortedByPriority();
+			return model.getTaskSortedByPriority();
 		} catch (RepositoryException e) {
 			view.showErrorMessage("No se pudieron obtener las tareas ordenadas: " + e.getMessage());
 			return new ArrayList<>();
 		}
 	}
 
+	public List<Task> getTasksSortedByCompletion() {
+		try {
+			return model.getTaskSortedByCompletion();
+		} catch (RepositoryException e) {
+			view.showErrorMessage("No se pudieron obtener las tareas ordenadas: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
 
 
 	/*--------------------------------------------------------------------------------------------------------------------*/

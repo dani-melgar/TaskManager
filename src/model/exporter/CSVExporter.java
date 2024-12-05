@@ -23,7 +23,7 @@ public class CSVExporter implements IExporter, TaskObserver {
 	/* Atributos */
 	private final String directoryPath = System.getProperty("user.home") + "/Tasks";
 	private final String filePath = directoryPath + "/task.csv";
-	private final String delimitador = ",";
+	private final String delimitador = ";";
 
 	// Cache local de los IDs de las tareas
 	private Set<Integer> cachedTaskIDs = new HashSet<>();
@@ -93,10 +93,8 @@ public class CSVExporter implements IExporter, TaskObserver {
 		for (String line : lines) {
 			try {
 				taskCSV.add(factoryTask(line));
-			} catch (ExporterException e) {
-				// Solucion de ChatGPT: Puedes registrar un mensaje de error y continuar con las siguientes lineas
-				// Es una mierda, model no puede imprimir, preguntarle esto al profesor
-				System.err.println("Error al procesar una línea del CSV: " + e.getMessage());
+			} catch (Exception e) {
+				// Nose
 			}
 		}
 
