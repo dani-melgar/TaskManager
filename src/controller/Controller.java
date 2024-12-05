@@ -7,73 +7,54 @@ import model.Model;
 import model.Task;
 import model.exporter.ExporterException;
 import model.repository.RepositoryException;
-import view.BaseView;
+import view.InteractiveView;
 
 public class Controller {
 	/* Atributos */
 	private Model model;
-	private BaseView view;
+	private InteractiveView view;
 
-	public Controller(Model model, BaseView view) {
+	public Controller(Model model, InteractiveView view) {
 		this.model = model;
 		this.view = view;
 		// Asegurar la inyeccion del controlador
 		view.setController(this);
 	}
 
-	// Deberia el controlador extender el error y que la vista haga try-catch
-	public void exportFormat(String format) {
+	public void start() {
 		try {
-			model.setExporter(format);
-			try {
-				model.exportTasks();
-				// Cual usara aqui? Exporter o Repository
-			} catch (Exception e) {
-				view.showErrorMessage(e.getMessage());
-			}
-		} catch (ExporterException e) {
+			model.loadData();
+			view.init();
+		} catch (RepositoryException e) {
+			view.init();
 			view.showErrorMessage(e.getMessage());
 		}
 	}
 
-	public void importFormat(String format) {
+	public void end() {
 		try {
-			model.setExporter(format);
-		} catch (ExporterException e) {
+			model.saveData();
+		} catch (RepositoryException e) {
 			view.showErrorMessage(e.getMessage());
+			view.end();
 		}
 	}
 
-	// Basura, revisar
-	public List<Task> getImportedTasks() {
-		List<Task> list = new ArrayList<>();
+	/*--------------------------------------------------------------------------------------------------------------------*/
+	/*							CRUD		                       		              */
+	/*--------------------------------------------------------------------------------------------------------------------*/
+	
+	public void addTask(Task t) {
 		try {
-			list = model.getImportedTasks();
-		} catch (Exception e) {
-			view.showErrorMessage(e.getMessage());
-		}
-		return list;
-	}
-
-	public void importTasks(List<Task> importedTasks) {
-		try {
-			model.mergeTasks(importedTasks, true);
+			model.addTask(t);
 		} catch (RepositoryException e) {
 			view.showErrorMessage(e.getMessage());
 		}
 	}
 
-	public void importTasks() {
+	public void createTask(Task t) {
 		try {
-			model.mergeTasks(true);
-		} catch (Exception e) {
-			view.showErrorMessage(e.getMessage());
-		}
-	}
-
-	public void addTask(Task t) {
-		try {
-			model.addTask(t);
+			model.createTask(t);
 		} catch (RepositoryException e) {
 			view.showErrorMessage(e.getMessage());
 		}
@@ -95,7 +76,70 @@ public class Controller {
 		}
 	}
 
-	public List<Task> getTasksByPriority() {
+	public List<Task> getAllTasks() {
+		try {
+			return model.getAllTasks();
+		} catch (RepositoryException e) {
+			view.showErrorMessage("Error al obtener las tareas: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+	public List<Task> getTasksSortedByPriority() {
+		try {
+			return model.getTaskSortedByPriority();
+		} catch (RepositoryException e) {
+			view.showErrorMessage("No se pudieron obtener las tareas ordenadas: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+	public List<Task> getTasksSortedByCompletion() {
+		try {
+			return model.getTaskSortedByCompletion();
+		} catch (RepositoryException e) {
+			view.showErrorMessage("No se pudieron obtener las tareas ordenadas: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+
+	/*--------------------------------------------------------------------------------------------------------------------*/
+	/*							IEXPORTER		                       		      */
+	/*--------------------------------------------------------------------------------------------------------------------*/
+
+	public void exportTasks(String format) {
+		try {
+			model.setExporter(format);
+			try {
+				model.exportTasks();
+				// Cual usara aqui? Exporter o Repository
+			} catch (Exception e) {
+				view.showErrorMessage(e.getMessage());
+			}
+		} catch (ExporterException e) {
+			view.showErrorMessage(e.getMessage());
+		}
+	}
+
+	public List<Task> importTasks(String format) {
+		try {
+			model.setImporter(format);
+			try {
+				return model.getImportedTasks();
+			} catch (Exception e) {
+				view.showErrorMessage(e.getMessage());
+				return new ArrayList<>();
+			}
+		} catch (Exception e) {
+			view.showErrorMessage(e.getMessage());
+			return new ArrayList<>();
+		}
+
+	}
+
+	// Basura, revisar
+	public List<Task> getImportedTasks() {
 		List<Task> list = new ArrayList<>();
 		try {
 			list = model.getImportedTasks();
@@ -105,27 +149,31 @@ public class Controller {
 		return list;
 	}
 
-	public List<Task> getAllTasks() {
-		List<Task> tasks = new ArrayList<>();
+	public void mergeImportedTasks(List<Task> importedTasks, boolean applyMerge) {
 		try {
-			tasks = model.getTasks();
+			model.mergeTasks(importedTasks, applyMerge);
+			if (applyMerge) {
+				view.showMessage("Tareas fusionadas con exito.");
+			} else {
+				view.showMessage("La fusion de tareas fue cancelada.");
+			}
 		} catch (RepositoryException e) {
-			view.showErrorMessage(e.getMessage());
+			view.showErrorMessage("Error al fusionar tareas: " + e.getMessage());
 		}
-		return tasks;
 	}
 
-	/*
-	 * Ignorar el codigo de debajo, solo es para quitar el puto
-	 * resaltado del Errorlens y VSCode
-	 */
-	public void start() {
-		model.loadData();
-		view.init();
+	public void mergeImportedTasks(boolean applyMerge) {
+		try {
+			model.mergeTasks(applyMerge);
+			if (applyMerge) {
+				view.showMessage("Tareas fusionadas con exito.");
+			} else {
+				view.showMessage("La fusion de tareas fue cancelada.");
+			}
+		} catch (ExporterException e) {
+			view.showErrorMessage("Error al importar tareas: " + e.getMessage());
+		} catch (RepositoryException e) {
+			view.showErrorMessage("Error al fusionar tareas: " + e.getMessage());
+		}
 	}
-
-	public void end() {
-		view.end();
-	}
-
 }

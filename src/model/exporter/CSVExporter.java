@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +23,7 @@ public class CSVExporter implements IExporter, TaskObserver {
 	/* Atributos */
 	private final String directoryPath = System.getProperty("user.home") + "/Tasks";
 	private final String filePath = directoryPath + "/task.csv";
-	private final String delimitador = ",";
+	private final String delimitador = ";";
 
 	// Cache local de los IDs de las tareas
 	private Set<Integer> cachedTaskIDs = new HashSet<>();
@@ -91,10 +93,8 @@ public class CSVExporter implements IExporter, TaskObserver {
 		for (String line : lines) {
 			try {
 				taskCSV.add(factoryTask(line));
-			} catch (ExporterException e) {
-				// Solucion de ChatGPT: Puedes registrar un mensaje de error y continuar con las siguientes lineas
-				// Es una mierda, model no puede imprimir, preguntarle esto al profesor
-				System.err.println("Error al procesar una línea del CSV: " + e.getMessage());
+			} catch (Exception e) {
+				// Nose
 			}
 		}
 
@@ -194,7 +194,9 @@ public class CSVExporter implements IExporter, TaskObserver {
 				throw new ExporterException("Error: El titulo no puede estar vacio");
 			}
 
-			Date date = Date.valueOf(taskEntityFields[2]);
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate date = LocalDate.parse(taskEntityFields[2], dateFormatter);
+
 			String content = taskEntityFields[3];
 
 			int priority = Integer.parseInt(taskEntityFields[4]);
@@ -213,7 +215,7 @@ public class CSVExporter implements IExporter, TaskObserver {
 
 		} catch (NumberFormatException e) {
 			throw new ExporterException("Error: Atributo numerico erroneo en los atributos de la tarea", e);
-		} catch (IllegalArgumentException e) {
+		} catch (DateTimeParseException e) {
 			throw new ExporterException("Error: Formato de fecha erroneo, valido: YYYY-MM-DD", e);
 		}
 	}

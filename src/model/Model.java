@@ -45,6 +45,18 @@ public class Model {
 	/*
 	* METODOS DE IRepository
 	 */
+	public void loadData() throws RepositoryException{
+		repository.loadTasks();
+	}
+
+	public void saveData() throws RepositoryException {
+		repository.saveTasks();
+	}
+
+	public void createTask(Task t) throws RepositoryException {
+		repository.createTask(t);
+		notifyObservers();
+	}
 	public void addTask(Task t) throws RepositoryException {
 		repository.addTask(t);
 		notifyObservers();
@@ -64,16 +76,19 @@ public class Model {
 		return repository.getUsedIDs();
 	}
 	
-	public List<Task> getTasks() throws RepositoryException {
+	public List<Task> getAllTasks() throws RepositoryException {
 		return repository.getAllTasks();
 	}
 
-	// Seleccionar formato del exporter o importer
-	// Se podrian juntar en un solo metodo creo
-	public void setExporterOLD(IExporter exporter) {
-		this.exporter = exporter;
+	public List<Task> getTaskSortedByPriority() throws RepositoryException {
+		return repository.getTasksSortedByPriority();
 	}
 
+	public List<Task> getTaskSortedByCompletion() throws RepositoryException {
+		return repository.getTasksSortedByPriority();
+	}
+
+	/* --------------------------------------------------------------------------- */
 	public void setExporter(String format) throws ExporterException {
 		this.exporter = ExporterFactory.getExporter(format);
 	}
@@ -96,16 +111,8 @@ public class Model {
 	public void mergeTasks(List<Task> importedTasks, boolean applyMerge) throws RepositoryException {
 		if (applyMerge) {
 			for (Task importedTask : importedTasks) {
-				try {
-					repository.addTask(importedTask);
-				} catch (RepositoryException e) {
-					// Mismo problema en funcion readTaskFromCSV
-					System.err.println("No se pudo agregar la tarea: " + importedTask + ". Motivo: " + e.getMessage());
-				}
+				repository.addTask(importedTask);
 			}
-			System.out.println("Tareas fusionadas con éxito.");
-		} else {
-			System.out.println("La fusión de tareas fue cancelada.");
 		}
 	}
 
@@ -114,25 +121,13 @@ public class Model {
 
 		if (applyMerge) {
 			for (Task importedTask : importedTasks) {
-				try {
-					repository.addTask(importedTask);
-				} catch (RepositoryException e) {
-					System.err.println("No se pudo agregar la tarea: " + importedTask + ". Motivo: " + e.getMessage());
-				}
+				repository.addTask(importedTask);
 			}
-			System.out.println("Tareas fusionadas con éxito.");
-		} else {
-			System.out.println("La fusión de tareas fue cancelada.");
 		}
 	}
 
-	public void loadData() {
-		// Implementar
-	}
 
-	public void saveData() {
-		// Implementar
-	}
+
 
 	/* Getters & Setters */
 	// Creados por VSCode, para que no den por culo con el resaltado

@@ -1,6 +1,5 @@
 package model.exporter;
 
-import com.google.gson.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import model.Task;
 import model.TaskObserver;
@@ -98,14 +101,28 @@ public class JSONExporter implements IExporter, TaskObserver {
 		// Usar la cache de IDs para evitar duplicados
 		Set<Integer> existingTaskIDs = readTasksID(existingTasks);
 		List<Task> allTasks = new ArrayList<>(existingTasks);
+
 		for (Task task : tasks) {
-			if (!existingTaskIDs.contains(task.getIdentifier())) {
+			boolean taskExists = false;
+				
+			for (int i = 0; i < existingTaskIDs.size(); i++) {
+				Task existingTask = existingTasks.get(i);
+				if (existingTask.getIdentifier() == task.getIdentifier()) {
+					taskExists = true;
+					if (!existingTask.getTitle().equals(task.getTitle()) || !existingTask.getContent().equals(task.getContent())) {
+						allTasks.set(i, task);
+					}
+					break;
+				}
+			}
+			if (!taskExists) {
 				allTasks.add(task);
 			}
 		}
 
 		// Usar Gson para convertir la lista de tareas a JSON
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
+
 		String json = gson.toJson(allTasks);
 
 		// Guardar el JSON en el archivo
@@ -130,7 +147,7 @@ public class JSONExporter implements IExporter, TaskObserver {
 			String json = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
 
 			// Pasar el JSON a una lista de objetos Task
-			Gson gson = new Gson();
+			Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
 			Task[] taskArray = gson.fromJson(json, Task[].class);
 			List<Task> tasks = List.of(taskArray);
 
