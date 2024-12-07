@@ -11,19 +11,14 @@ import model.repository.IRepository;
 import model.repository.RepositoryException;
 
 public class Model {
-	/* Atributos */
 	private IRepository repository;
 	private IExporter exporter;
 	private List<TaskObserver> observers = new ArrayList<>();
 
-	/* Constructor */
 	public Model(IRepository repository) {
 		this.repository = repository;
 	}
 	
-	/*
-	* METODOS DE TaskObserver (Cambiarle el nombre a IObserver)
-	 */
 	public void addObserver(TaskObserver observer) {
 		if (observer != null && !observers.contains(observer)) {
 			observers.add(observer);
@@ -34,17 +29,13 @@ public class Model {
 		observers.remove(observer);
 	}
 	
-	// Revisar las excepciones de getUsedIDs
 	public void notifyObservers() throws RepositoryException {
 		Set<Integer> taskIDs = repository.getUsedIDs();
 		for (TaskObserver observer : observers) {
 			observer.update(taskIDs);
 		}
 	}
-	
-	/*
-	* METODOS DE IRepository
-	 */
+
 	public void loadData() throws RepositoryException{
 		repository.loadTasks();
 	}
@@ -88,7 +79,6 @@ public class Model {
 		return repository.getTasksSortedByPriority();
 	}
 
-	/* --------------------------------------------------------------------------- */
 	public void setExporter(String format) throws ExporterException {
 		this.exporter = ExporterFactory.getExporter(format);
 	}
@@ -97,13 +87,10 @@ public class Model {
 		this.exporter = ExporterFactory.getExporter(format);
 	}
 
-	// Exportar
-	// Comprobar mas afondo que pasa aqui
 	public void exportTasks() throws ExporterException, RepositoryException {
 		this.exporter.exportTasks(repository.getAllTasks());
 	}
 
-	// Pasamos la lista de tareas por comodidad
 	public List<Task> getImportedTasks() throws ExporterException {
 		return exporter.importTasks();
 	}
@@ -126,11 +113,6 @@ public class Model {
 		}
 	}
 
-
-
-
-	/* Getters & Setters */
-	// Creados por VSCode, para que no den por culo con el resaltado
 	public IRepository getRepository() {
 		return repository;
 	}

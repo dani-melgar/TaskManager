@@ -156,6 +156,7 @@ public class JSONExporter implements IExporter, TaskObserver {
 			for (Task task : tasks) {
 				if (!cachedTaskIDs.contains(task.getIdentifier())) {
 					newTasks.add(task);
+					cachedTaskIDs.add(task.getIdentifier());
 				}
 			}
 			return newTasks;
@@ -163,5 +164,4 @@ public class JSONExporter implements IExporter, TaskObserver {
 			throw new ExporterException("Error leyendo el fichero JSON", e);
 		}
 	}
-
 }

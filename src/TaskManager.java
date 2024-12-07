@@ -16,8 +16,7 @@ public class TaskManager {
 						repository = new BinaryRepository();
 						break;
 					case "notion":
-						if (args.length == 4) { // Verificar que se proporcionen API_KEY y
-									// DATABASE_ID
+						if (args.length == 4) {
 							String apiToken = args[2];
 							String databaseID = args[3];
 							repository = new NotionRepository(apiToken, databaseID);
@@ -27,7 +26,7 @@ public class TaskManager {
 						}
 						break;
 					default:
-						System.err.println( "Repositorio no válido. Usando repositorio binario por defecto.");
+						System.err.println( "Repositorio no valido. Usando repositorio binario por defecto.");
 						repository = new BinaryRepository();
 						break;
 				}

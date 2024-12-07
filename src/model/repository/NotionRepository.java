@@ -28,8 +28,6 @@ public class NotionRepository implements IRepository {
 	private Set<Integer> usedIDs = new HashSet<>();
 	private List<Task> tasks = new ArrayList<>();
 
-	private Set<String> notionIdentifier = new HashSet<>();
-
 	private final NotionClient client;
 	private final String databaseID;
 	private final String titleColumnName = "Identifier";
@@ -54,14 +52,16 @@ public class NotionRepository implements IRepository {
 	@Override
 	public void loadTasks() throws RepositoryException {
 		try {
-			// Cargar las tareas desde Notion (esto ya está en getAllTasks)
+			// Cargar las tareas desde Notion
 			List<Task> loadedTasks = getAllTasks();
 			
 			// Limpiar la lista de tareas locales antes de cargar nuevas
 			tasks.clear();
 
-			// Añadir las tareas cargadas desde Notion al repositorio local
-			tasks.addAll(loadedTasks);
+			// Agregar las tareas cargadas desde Notion al repositorio local
+			for (Task task : loadedTasks) {
+				tasks.add(task);
+			}
 
 		} catch (Exception e) {
 			throw new RepositoryException("Error al cargar las tareas desde Notion: " + e.getMessage(), e);
@@ -73,16 +73,16 @@ public class NotionRepository implements IRepository {
 		try {
 			// Recorrer todas las tareas locales y guardarlas en Notion
 			for (Task task : tasks) {
-			// Verificar si la tarea ya existe en Notion, si no existe la creas
-			String pageId = findPageIdByIdentifier(String.valueOf(task.getIdentifier()), titleColumnName);
-				
-				if (pageId == null) {
-					// Si no existe, crea la tarea en Notion
-					createTask(task);
-				} else {
-					// Si ya existe, actualiza la tarea
-					modifyTask(task);
-				}
+				// Comprobar si la tarea ya existe en Notion, si no existe la creas
+				String pageId = findPageIdByIdentifier(String.valueOf(task.getIdentifier()), titleColumnName);
+					
+					if (pageId == null) {
+						// Si no existe, crea la tarea en Notion
+						createTask(task);
+					} else {
+						// Si ya existe, actualiza la tarea  || y si la borro?
+						modifyTask(task);
+					}
 			}
 		} catch (Exception e) {
 			throw new RepositoryException("Error al guardar las tareas en Notion: " + e.getMessage(), e);
@@ -91,7 +91,7 @@ public class NotionRepository implements IRepository {
 
 	@Override
 	public void createTask(Task t) throws RepositoryException {
-		// Comprobar si la tarea está vacía
+		// Comprobar si la tarea esta vacia
 		if (t == null) {
 			throw new RepositoryException("Error: La tarea es nula");
 		}
@@ -99,9 +99,9 @@ public class NotionRepository implements IRepository {
 		int uniqueID = generateUniqueID();
 		t.setIdentifier(uniqueID);
 
-		// Comprobar título y contenido no nulos o vacíos
+		// Comprobar titulo y contenido no nulos o vacíos
 		if (t.getTitle() == null || t.getTitle().isEmpty()) {
-			throw new RepositoryException("Error: El título de la tarea es obligatorio");
+			throw new RepositoryException("Error: El titulo de la tarea es obligatorio");
 		}
 
 		if (t.getContent() == null || t.getContent().isEmpty()) {
@@ -114,7 +114,7 @@ public class NotionRepository implements IRepository {
 
 	@Override
 	public void addTask(Task t) throws RepositoryException {
-		// Comprobar si la tarea está vacía
+		// Comprobar si la tarea vacia vacia
 		if (t == null) {
 			throw new RepositoryException("Error: La tarea es nula");
 		}
@@ -128,16 +128,16 @@ public class NotionRepository implements IRepository {
 			}
 		}
 
-		// Comprobar título y contenido no nulos o vacíos
+		// Comprobar titulo y contenido no nulos o vacíos
 		if (t.getTitle() == null || t.getTitle().isEmpty()) {
-			throw new RepositoryException("Error: El título de la tarea es obligatorio");
+			throw new RepositoryException("Error: El titulo de la tarea es obligatorio");
 		}
 
 		if (t.getContent() == null || t.getContent().isEmpty()) {
 			throw new RepositoryException("Error: El contenido de la tarea es obligatorio");
 		}
 
-		// Crear las propiedades de la página
+		// Crear las propiedades de la pagina
 		try {
 			Map<String, PageProperty> properties = Map.of(
 				"Identifier", createTitleProperty(String.valueOf(t.getIdentifier())),
@@ -152,10 +152,8 @@ public class NotionRepository implements IRepository {
 			PageParent parent = PageParent.database(databaseID);
 			CreatePageRequest request = new CreatePageRequest(parent, properties);
 			Page response = client.createPage(request);
-
-			// Añadir a la lista local y registrar el ID en Notion
-			//tasks.add(t);
-			notionIdentifier.add(response.getId());
+			// Actualizar set de IDs
+			usedIDs.add(Integer.getInteger(response.getId()));
 		} catch (Exception e) {
 			throw new RepositoryException("Error al crear la tarea en Notion: " + e.getMessage(), e);
 		}
@@ -192,7 +190,7 @@ public class NotionRepository implements IRepository {
 		}
 
 		try {
-			// Buscar el ID interno de Notion usando el título/identificador
+			// Buscar el ID interno de Notion usando el titulo
 			String pageId = findPageIdByIdentifier(String.valueOf(t.getIdentifier()), titleColumnName);
 			if (pageId == null) {
 				throw new RepositoryException("Error: No se encontró una tarea con el identificador: " + t.getIdentifier());
@@ -210,8 +208,6 @@ public class NotionRepository implements IRepository {
 
 			UpdatePageRequest updateRequest = new UpdatePageRequest(pageId, updatedProperties);
 			client.updatePage(updateRequest);
-
-			System.out.println("Tarea actualizada con éxito. ID interno: " + pageId);
 		} catch (Exception e) {
 			throw new RepositoryException("Error al actualizar la tarea: " + e.getMessage(), e);
 		}
@@ -262,7 +258,7 @@ public class NotionRepository implements IRepository {
 				Task task = mapPageToTask(page.getId(), properties);
 				if (task != null) {
 					loadedTasks.add(task);
-					usedIDs.add(task.getIdentifier());
+					this.usedIDs.add(task.getIdentifier());
 				}
 			}
 			this.tasks = loadedTasks;
