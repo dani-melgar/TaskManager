@@ -261,7 +261,6 @@ public class NotionRepository implements IRepository {
 					this.usedIDs.add(task.getIdentifier());
 				}
 			}
-			this.tasks = loadedTasks;
 			return loadedTasks;
 		} catch (Exception e) {
 			throw new RepositoryException("Error al obtener las tareas desde Notion: " + e.getMessage(), e);
@@ -289,6 +288,18 @@ public class NotionRepository implements IRepository {
 			return sortedTasks;
 		} catch (Exception e) {
 			throw new RepositoryException("Error al obtener la lista de tareas ordenada por estado de completado.", e);
+		}
+	}
+
+	@Override
+	public List<Task> getTasksSortedByDate() throws RepositoryException {
+		try {
+			List<Task> sortedTasks = new ArrayList<>(getAllTasks());
+			sortedTasks.sort((task1, task2) -> task1.getDate().compareTo(task2.getDate()));
+			sortedTasks.reversed();
+			return sortedTasks;
+		} catch (Exception e) {
+			throw new RepositoryException("Error al obtener la lista de tareas ordenada por fecha", e);
 		}
 	}
 

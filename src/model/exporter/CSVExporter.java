@@ -146,7 +146,6 @@ public class CSVExporter implements IExporter, TaskObserver {
 		// Comparar las tareas del fichero con las actuales en memoria
 		Set<Integer> existingIDTasks = readTasksID(existingTasks);
 		List<Task> allTasks = new ArrayList<>(existingTasks);
-
 		for (Task task : tasks) {
 			boolean taskExists = false;
 
@@ -166,6 +165,9 @@ public class CSVExporter implements IExporter, TaskObserver {
 			}
 		}
 		
+		// Ordenarlas por fecha
+		allTasks.sort((task1, task2) -> task1.getDate().compareTo(task2.getDate()));
+		allTasks.reversed();
 		// Convertir Tareas a String delimitadas
 		List<String> taskLines = new ArrayList<>();
 		for (Task task : allTasks) {

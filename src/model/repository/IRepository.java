@@ -124,6 +124,17 @@ public interface IRepository {
 	List<Task> getTasksSortedByCompletion() throws RepositoryException;
 
 	/**
+	 * Devuelve una lista de tareas ordenadas por fecha en orden descendente.
+	 * <p>
+	 * Genera y devuelve una copia ordenada de la lista de tareas, sin modificar la original.
+	 * </p>
+	 * 
+	 * @return Una lista de tareas ordenadas por fecha en orden descendente.
+	 * @throws RepositoryException Si ocurre un error al procesar las tareas.
+	 */
+	List<Task> getTasksSortedByDate() throws RepositoryException;
+
+	/**
 	 * Devuelve un conjunto con los identificadores unicos de las tareas.
 	 * <p>
 	 * Utilidad para garantizar la unicidad de los IDs en el repositorio.

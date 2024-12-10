@@ -121,7 +121,7 @@ public class InteractiveView extends BaseView {
 		System.out.printf("Duracion estimada: ");
 		int estimatedDuration = ViewUtils.validOptionInteger(refScanner, 1, 9999999);
 
-		boolean completada = ViewUtils.confirmAction("Tarea completada?: ", refScanner);
+		boolean completada = ViewUtils.confirmAction("Tarea completada?:", refScanner);
 
 		Task t = new Task(title, date, content, priority, estimatedDuration, completada);
 		controller.createTask(t);
@@ -132,7 +132,7 @@ public class InteractiveView extends BaseView {
 		String title = "Listar Tareas";
 		String[] options = {
 			"1. Ordenadas por prioridad [Ascendente -> Descendente]",
-			"2. Todas las tareas [Sin Completar]",
+			"2. Ordenadas por Estado [Completadas]",
 			"3. Volver"
 		};
 		boolean salir = false;
@@ -171,10 +171,10 @@ public class InteractiveView extends BaseView {
 		do {
 			switch (displayOption) {
 				case 1:
-					tasks = controller.getTasksSortedByCompletion();
+					tasks = controller.getTasksSortedByPriority();
 					break;
 				case 2:
-					tasks = controller.getTasksSortedByPriority();
+					tasks = controller.getTasksSortedByCompletion();
 					break;
 			}
 			

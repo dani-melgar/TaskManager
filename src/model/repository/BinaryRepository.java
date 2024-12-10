@@ -286,6 +286,19 @@ public class BinaryRepository implements IRepository {
 			throw new RepositoryException("Error al obtener la lista de tareas ordenada por prioridad", e);
 		}
 	}
+
+	@Override
+	public List<Task> getTasksSortedByDate() throws RepositoryException {
+		try {
+			List<Task> sortedTasks = getAllTasks();
+			// Ordenamos las tareas por el atributo "date" (de mas antigua a mas nueva)
+			sortedTasks.sort((task1, task2) -> task1.getDate().compareTo(task2.getDate()));
+			sortedTasks.reversed();
+			return sortedTasks;
+		} catch (Exception e) {
+			throw new RepositoryException("Error al obtener la lista de tareas ordenada por fecha", e);
+		}
+	}
 	
 	@Override
 	public List<Task> getTasksSortedByCompletion() throws RepositoryException {

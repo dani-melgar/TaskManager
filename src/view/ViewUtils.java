@@ -143,21 +143,34 @@ public class ViewUtils {
 	 * @return {@code true} si el usuario confirma, {@code false} en caso contrario.
 	 */
 	public static boolean confirmActionCentered(String message, Scanner refScanner) {
+		int width = getTerminalWidth();
 		while (true) {
-			printCenteredText(message + " ");
+			// Centrar el mensaje
+			String fullMessage = message + " (s/n): ";
+			if (fullMessage.length() >= width) {
+				System.out.print(fullMessage);
+			} else {
+				int padding = (width - fullMessage.length()) / 2;
+				System.out.print(" ".repeat(padding) + fullMessage);
+			}
+
+			// Leer la entrada del usuario
 			String input = refScanner.nextLine().trim().toLowerCase();
 
 			if (input.equals("s")) {
 				return true;
 			}
+
 			if (input.equals("n")) {
 				return false;
 			}
 
+			// Mostrar mensaje de error centrado
 			String errorString = "Introduzca " + GREEN + "s" + RESET + " para " + GREEN + "si" + RESET + " o " + RED + "n" + RESET + " para " + RED + "no." + RESET;
 			printCenteredText(errorString);
 		}
 	}
+
 
 	/**
 	 * Calcula los anchos de columna ajustados para el contenido en una tabla.
@@ -394,5 +407,4 @@ public class ViewUtils {
 			}
 		}
 	}
-
 }

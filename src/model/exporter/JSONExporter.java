@@ -101,6 +101,8 @@ public class JSONExporter implements IExporter, TaskObserver {
 		// Usar la cache de IDs para evitar duplicados
 		Set<Integer> existingTaskIDs = readTasksID(existingTasks);
 		List<Task> allTasks = new ArrayList<>(existingTasks);
+		allTasks.sort((task1, task2) -> task1.getDate().compareTo(task2.getDate()));
+		allTasks.reversed();
 
 		for (Task task : tasks) {
 			boolean taskExists = false;
@@ -151,7 +153,7 @@ public class JSONExporter implements IExporter, TaskObserver {
 			Task[] taskArray = gson.fromJson(json, Task[].class);
 			List<Task> tasks = List.of(taskArray);
 
-			// Filtrar tareas con identificadores únicos
+			// Filtrar tareas con identificadores unicos
 			List<Task> newTasks = new ArrayList<>();
 			for (Task task : tasks) {
 				if (!cachedTaskIDs.contains(task.getIdentifier())) {

@@ -88,7 +88,7 @@ public class Model {
 	}
 
 	public void exportTasks() throws ExporterException, RepositoryException {
-		this.exporter.exportTasks(repository.getAllTasks());
+		this.exporter.exportTasks(repository.getTasksSortedByDate());
 	}
 
 	public List<Task> getImportedTasks() throws ExporterException {
@@ -97,18 +97,51 @@ public class Model {
 
 	public void mergeTasks(List<Task> importedTasks, boolean applyMerge) throws RepositoryException {
 		if (applyMerge) {
+			// Lista para almacenar errores durante la fusion
+			List<RepositoryException> errors = new ArrayList<>();
+			
 			for (Task importedTask : importedTasks) {
-				repository.addTask(importedTask);
+				try {
+					repository.addTask(importedTask);
+				} catch (RepositoryException e) {
+					// Registrar el error y continuar con las demas tareas
+					errors.add(new RepositoryException("Error al agregar la tarea con ID " + importedTask.getIdentifier() + ": " + e.getMessage(), e));
+				}
+			}
+
+			// Si hubo errores, lanzar una excepcion que los contenga todos
+			if (!errors.isEmpty()) {
+				StringBuilder errorMessage = new StringBuilder("Se encontraron errores durante la fusion de tareas:\n");
+				for (RepositoryException error : errors) {
+					errorMessage.append("- ").append(error.getMessage()).append("\n");
+				}
+				throw new RepositoryException(errorMessage.toString());
 			}
 		}
 	}
 
 	public void mergeTasks(boolean applyMerge) throws ExporterException, RepositoryException {
 		List<Task> importedTasks = exporter.importTasks();
-
 		if (applyMerge) {
+			// Lista para almacenar errores durante la fusion
+			List<RepositoryException> errors = new ArrayList<>();
+			
 			for (Task importedTask : importedTasks) {
-				repository.addTask(importedTask);
+				try {
+					repository.addTask(importedTask);
+				} catch (RepositoryException e) {
+					// Registrar el error y continuar con las demas tareas
+					errors.add(new RepositoryException("Error al agregar la tarea con ID " + importedTask.getIdentifier() + ": " + e.getMessage(), e));
+				}
+			}
+
+			// Si hubo errores, lanzar una excepcion que los contenga todos
+			if (!errors.isEmpty()) {
+				StringBuilder errorMessage = new StringBuilder("Se encontraron errores durante la fusion de tareas:\n");
+				for (RepositoryException error : errors) {
+					errorMessage.append("- ").append(error.getMessage()).append("\n");
+				}
+				throw new RepositoryException(errorMessage.toString());
 			}
 		}
 	}
