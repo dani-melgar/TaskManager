@@ -11,19 +11,14 @@ import model.repository.IRepository;
 import model.repository.RepositoryException;
 
 public class Model {
-	/* Atributos */
 	private IRepository repository;
 	private IExporter exporter;
 	private List<TaskObserver> observers = new ArrayList<>();
 
-	/* Constructor */
 	public Model(IRepository repository) {
 		this.repository = repository;
 	}
 	
-	/*
-	* METODOS DE TaskObserver (Cambiarle el nombre a IObserver)
-	 */
 	public void addObserver(TaskObserver observer) {
 		if (observer != null && !observers.contains(observer)) {
 			observers.add(observer);
@@ -34,17 +29,13 @@ public class Model {
 		observers.remove(observer);
 	}
 	
-	// Revisar las excepciones de getUsedIDs
 	public void notifyObservers() throws RepositoryException {
 		Set<Integer> taskIDs = repository.getUsedIDs();
 		for (TaskObserver observer : observers) {
 			observer.update(taskIDs);
 		}
 	}
-	
-	/*
-	* METODOS DE IRepository
-	 */
+
 	public void loadData() throws RepositoryException{
 		repository.loadTasks();
 	}
@@ -88,7 +79,6 @@ public class Model {
 		return repository.getTasksSortedByPriority();
 	}
 
-	/* --------------------------------------------------------------------------- */
 	public void setExporter(String format) throws ExporterException {
 		this.exporter = ExporterFactory.getExporter(format);
 	}
@@ -97,40 +87,65 @@ public class Model {
 		this.exporter = ExporterFactory.getExporter(format);
 	}
 
-	// Exportar
-	// Comprobar mas afondo que pasa aqui
 	public void exportTasks() throws ExporterException, RepositoryException {
-		this.exporter.exportTasks(repository.getAllTasks());
+		this.exporter.exportTasks(repository.getTasksSortedByDate());
 	}
 
-	// Pasamos la lista de tareas por comodidad
 	public List<Task> getImportedTasks() throws ExporterException {
 		return exporter.importTasks();
 	}
 
 	public void mergeTasks(List<Task> importedTasks, boolean applyMerge) throws RepositoryException {
 		if (applyMerge) {
+			// Lista para almacenar errores durante la fusion
+			List<RepositoryException> errors = new ArrayList<>();
+			
 			for (Task importedTask : importedTasks) {
-				repository.addTask(importedTask);
+				try {
+					repository.addTask(importedTask);
+				} catch (RepositoryException e) {
+					// Registrar el error y continuar con las demas tareas
+					errors.add(new RepositoryException("Error al agregar la tarea con ID " + importedTask.getIdentifier() + ": " + e.getMessage(), e));
+				}
+			}
+
+			// Si hubo errores, lanzar una excepcion que los contenga todos
+			if (!errors.isEmpty()) {
+				StringBuilder errorMessage = new StringBuilder("Se encontraron errores durante la fusion de tareas:\n");
+				for (RepositoryException error : errors) {
+					errorMessage.append("- ").append(error.getMessage()).append("\n");
+				}
+				throw new RepositoryException(errorMessage.toString());
 			}
 		}
 	}
 
 	public void mergeTasks(boolean applyMerge) throws ExporterException, RepositoryException {
 		List<Task> importedTasks = exporter.importTasks();
-
 		if (applyMerge) {
+			// Lista para almacenar errores durante la fusion
+			List<RepositoryException> errors = new ArrayList<>();
+			
 			for (Task importedTask : importedTasks) {
-				repository.addTask(importedTask);
+				try {
+					repository.addTask(importedTask);
+				} catch (RepositoryException e) {
+					// Registrar el error y continuar con las demas tareas
+					errors.add(new RepositoryException("Error al agregar la tarea con ID " + importedTask.getIdentifier() + ": " + e.getMessage(), e));
+				}
+			}
+
+			// Si hubo errores, lanzar una excepcion que los contenga todos
+			if (!errors.isEmpty()) {
+				StringBuilder errorMessage = new StringBuilder("Se encontraron errores durante la fusion de tareas:\n");
+				for (RepositoryException error : errors) {
+					errorMessage.append("- ").append(error.getMessage()).append("\n");
+				}
+				throw new RepositoryException(errorMessage.toString());
 			}
 		}
 	}
 
-
-
-
-	/* Getters & Setters */
-	// Creados por VSCode, para que no den por culo con el resaltado
 	public IRepository getRepository() {
 		return repository;
 	}

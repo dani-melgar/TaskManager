@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Task implements Serializable {
-	// Cambiar la visibilidad luego a private
 	public static final long serialVerisionUID = 1L;
 
 	/* Atributos */
